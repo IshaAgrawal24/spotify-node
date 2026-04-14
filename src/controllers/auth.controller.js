@@ -40,12 +40,56 @@ async function registerUser(req, res) {
     status_code: 201,
     return_message: "User created successfully.",
     user: {
-        id: user._id,
-        userName,
-        email,
-        role
+      id: user._id,
+      userName,
+      email,
+      role,
     },
   });
 }
 
-module.exports = {registerUser};
+async function loginUser(req, res) {
+  const { userName, email, password } = req.body;
+
+  const user = await userModel.findOne({
+    $or: [{ userName }, { email }],
+  });
+
+  if (!user) {
+    return res.status(401).json({
+      status_code: 401,
+      return_message: "Invalid credentials",
+    });
+  }
+
+  const isValidPassword = await bcrypt.compare(password, user.password);
+
+  if (!isValidPassword) {
+    return res.status(401).json({
+      status_code: 401,
+      return_message: "Invalid credentials",
+    });
+  }
+
+  const token = jwt.sign(
+    {
+      id: user._id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+  );
+
+  res.cookie("token", token);
+  res.status(200).json({
+    status_code: 200,
+    return_message: "User loggeg in successfully.",
+    user: {
+      id: user._id,
+      userName: user.userName,
+      email: user.email,
+      role: user.role,
+    },
+  });
+}
+
+module.exports = { registerUser, loginUser };
