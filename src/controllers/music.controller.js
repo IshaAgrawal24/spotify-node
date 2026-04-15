@@ -43,4 +43,52 @@ async function createAlbum(req, res) {
   });
 }
 
-module.exports = { createMusic, createAlbum };
+async function getAllMusics(req, res) {
+  const musicList = await musicModel
+    .find()
+    .skip(1)   //Skip the data
+    .limit(2) // max limit to show data at a time
+    .populate("artist", "userName email");
+
+  res.status(200).json({
+    status_code: 200,
+    return_message: "Data fetched successfully.",
+    music: musicList,
+  });
+}
+
+async function getAllAlbums(req, res) {
+  const albumList = await albumModel
+    .find()
+    .select("title artist")
+    .populate("artist", "userName email");
+
+  res.status(200).json({
+    status_code: 200,
+    return_message: "Data fetched successfully.",
+    album: albumList,
+  });
+}
+
+async function getMusicByAlbumId(req, res) {
+  const id = req.params.albumId;
+
+  const list = await albumModel
+    .findById(id)
+    .populate("artist", "userName email")
+    .populate("musics");
+
+  res.status(200).json({
+    status_code: 200,
+    return_message: "Data fetched successfully.",
+    music_list: list,
+  });
+}
+
+module.exports = {
+  createMusic,
+  createAlbum,
+  getAllMusics,
+  getAllAlbums,
+  getMusicByAlbumId,
+};
