@@ -8,4 +8,7 @@ router.post("/register", authController.registerUser);
 // Login API
 router.post("/login", authController.loginUser);
 
+// Logout API 
+router.post("/logout", authController.logout)
+
 module.exports = router;
