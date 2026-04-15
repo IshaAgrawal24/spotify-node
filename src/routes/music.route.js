@@ -13,4 +13,6 @@ router.post(
   musicController.createMusic,
 );
 
+router.post('/upload-album', musicController.createAlbum)
+
 module.exports = router;
